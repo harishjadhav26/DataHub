@@ -1,0 +1,16 @@
+# Be careful using Kafka Network Policy, if you dont know then dont apply this configuration
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: kafka-network
+  namespace: datahub
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              network/kafka-network: "true"
+  podSelector:
+    matchLabels:
+      network/kafka-network: "true"

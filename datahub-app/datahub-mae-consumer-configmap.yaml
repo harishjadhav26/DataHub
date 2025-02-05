@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: datahub-mae-consumer-config
+  namespace: datahub
+data:
+  DATAHUB_UPGRADE_HISTORY_KAFKA_CONSUMER_GROUP_ID: "generic-duhe-consumer-job-client-mcl"
+  DATAHUB_GMS_HOST: "datahub-gms"
+  DATAHUB_GMS_PORT: "8080"
+  MAE_CONSUMER_ENABLED: "true"
+  PE_CONSUMER_ENABLED: "false"
+  KAFKA_BOOTSTRAP_SERVER: "kafka-0.kafka.datahub.svc.cluster.local:29092"
+  KAFKA_SCHEMAREGISTRY_URL: "http://schema-registry.schema-registry.datahub.svc.cluster.local:8081"
+  ELASTICSEARCH_HOST: "elasticsearch-0.elasticsearch.datahub.svc.cluster.local"
+  ELASTICSEARCH_PORT: "9200"
+  ES_BULK_REFRESH_POLICY: "WAIT_UNTIL"
+  NEO4J_HOST: "http://neo4j:7474"
+  NEO4J_URI: "bolt://neo4j"
+  NEO4J_USERNAME: "neo4j"
+  NEO4J_PASSWORD: "datahub"
+  GRAPH_SERVICE_IMPL: "neo4j"
+  ENTITY_REGISTRY_CONFIG_PATH: "/datahub/datahub-mae-consumer/resources/entity-registry.yml"

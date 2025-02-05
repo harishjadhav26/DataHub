@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: datahub-upgrade-config
+  namespace: datahub
+data:
+  EBEAN_DATASOURCE_USERNAME: "datahub"
+  EBEAN_DATASOURCE_PASSWORD: "datahub"
+  EBEAN_DATASOURCE_HOST: "mysql:3306"
+  EBEAN_DATASOURCE_URL: "jdbc:mysql://mysql:3306/datahub?verifyServerCertificate=false&useSSL=true&useUnicode=yes&characterEncoding=UTF-8"
+  EBEAN_DATASOURCE_DRIVER: "com.mysql.jdbc.Driver"
+  KAFKA_BOOTSTRAP_SERVER: "kafka-0.kafka.datahub.svc.cluster.local:29092"
+  KAFKA_SCHEMAREGISTRY_URL: "http://schema-registry.schema-registry.datahub.svc.cluster.local:8081"
+  ELASTICSEARCH_HOST: "elasticsearch-0.elasticsearch.datahub.svc.cluster.local"
+  ELASTICSEARCH_PORT: "9200"
+  ELASTICSEARCH_INDEX_BUILDER_MAPPINGS_REINDEX: "true"
+  ELASTICSEARCH_INDEX_BUILDER_SETTINGS_REINDEX: "true"
+  ELASTICSEARCH_BUILD_INDICES_CLONE_INDICES: "false"
+  GRAPH_SERVICE_IMPL: "elasticsearch"
+  DATAHUB_GMS_HOST: "datahub-gms"
+  DATAHUB_GMS_PORT: "8080"
+  ENTITY_REGISTRY_CONFIG_PATH: "/datahub/datahub-gms/resources/entity-registry.yml"
+  BACKFILL_BROWSE_PATHS_V2: "true"
+  REPROCESS_DEFAULT_BROWSE_PATHS_V2: "false"

@@ -1,0 +1,29 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-setup
+  namespace: datahub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-setup
+  template:
+    metadata:
+      labels:
+        app: mysql-setup
+    spec:
+      containers:
+        - name: mysql-setup
+          image: acryldata/datahub-mysql-setup:latest
+          envFrom:
+            - configMapRef:
+                name: mysql-setup-config
+          resources:
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+            requests:
+              memory: "1Gi"
+              cpu: "500m"

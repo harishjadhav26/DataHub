@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-setup-config
+  namespace: datahub
+data:
+  KAFKA_ZOOKEEPER_CONNECT: "zookeeper.zookeeper.datahub.svc.cluster.local:2181"
+  KAFKA_BOOTSTRAP_SERVER: "kafka-0.kafka.datahub.svc.cluster.local:29092"
+  USE_CONFLUENT_SCHEMA_REGISTRY: "TRUE"
+

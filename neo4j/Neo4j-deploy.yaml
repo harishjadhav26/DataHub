@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neo4j
+  namespace: datahub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: neo4j
+  template:
+    metadata:
+      labels:
+        app: neo4j
+    spec:
+      containers:
+      - name: neo4j
+        image: neo4j:4.4.9-community
+        ports:
+          - containerPort: 7687
+          - containerPort: 7474
+          - containerPort: 7473
+        volumeMounts:
+          - mountPath: /data
+            name: neo4j-storage
+        envFrom:
+          - configMapRef:
+              name: neo4j-config
+        resources:
+          requests:
+            cpu: 200m
+            memory: 1Gi
+          limits:
+            cpu: 500m
+            memory: 2Gi
+  volumeClaimTemplates:
+    - metadata:
+        name: neo4j-storage
+        namespace: datahub
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: neo4j
+  namespace: datahub
+spec:
+  selector:
+    app: neo4j
+  ports:
+  - protocol: TCP
+    port: 7687
+    targetPort: 7687
+  - protocol: TCP
+    port: 7474
+    targetPort: 7474
+  - protocol: TCP
+    port: 7473
+    targetPort: 7473    

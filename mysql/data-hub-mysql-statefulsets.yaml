@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+ name: mysql
+namespace: datahub
+spec:
+ selector:
+   matchLabels:
+     app: mysql
+ serviceName: mysql
+ replicas: 1
+ template:
+   metadata:
+     labels:
+       app: mysql
+   spec:
+     terminationGracePeriodSeconds: 10
+     containers:
+     - name: mysql
+       image: mysql:8.2
+       ports:
+       - containerPort: 3306
+         name: mysql
+       env:
+       - name: MYSQL_ROOT_PASSWORD
+         valueFrom:
+           secretKeyRef:
+             name: mysqlpwd
+             key: password
+       - name: MYSQL_DATABASE
+         value: "datahub"
+       volumeMounts:
+       - mountPath: /var/lib/mysql
+         name: mysql-db
+ volumeClaimTemplates:
+ - metadata:
+     name: mysql-db
+     namespace: datahub
+   spec:
+     storageClassName: sc-local
+     accessModes: [ "ReadWriteOnce" ]
+     resources:
+       requests:
+         storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+ name: mysql
+ namespace: datahub
+ labels:
+   app: mysql
+spec:
+ type: ClusterIP
+ selector:
+   app: mysql
+ ports:
+   - port: 3306
+     protocol: TCP
+ clusterIP: "None"         

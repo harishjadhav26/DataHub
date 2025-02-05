@@ -1,0 +1,29 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elasticsearch-setup
+  namespace: datahub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch-setup
+  template:
+    metadata:
+      labels:
+        app: elasticsearch-setup
+    spec:
+      containers:
+        - name: elasticsearch-setup
+          image: acryldata/datahub-elasticsearch-setup:latest
+          envFrom:
+            - configMapRef:
+                name: elasticsearch-setup-config
+          resources:
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+            requests:
+              memory: "1Gi"
+              cpu: "500m"

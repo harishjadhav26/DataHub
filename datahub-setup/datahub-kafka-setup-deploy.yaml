@@ -1,0 +1,29 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-setup
+  namespace: datahub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-setup
+  template:
+    metadata:
+      labels:
+        app: kafka-setup
+    spec:
+      containers:
+        - name: kafka-setup
+          image: acryldata/datahub-kafka-setup:latest
+          envFrom:
+            - configMapRef:
+                name: kafka-setup-config
+          resources:
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+            requests:
+              memory: "1Gi"
+              cpu: "500m"

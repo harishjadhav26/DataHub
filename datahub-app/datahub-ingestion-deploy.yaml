@@ -1,0 +1,44 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: datahub-ingestion
+  namespace: datahub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: datahub-ingestion
+  template:
+    metadata:
+      labels:
+        app: datahub-ingestion
+    spec:
+      containers:
+        - name: datahub-ingestion
+          image: acryldata/datahub-ingestion:latest
+          env:
+            - name: DATAHUB_GMS_HOST
+              value: "datahub-gms"
+            - name: KAFKA_BOOTSTRAP_SERVER
+              value: "kafka-0.kafka.datahub.svc.cluster.local:29092"
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: datahub-ingestion
+  namespace: datahub
+spec:
+  selector:
+    app: datahub-ingestion
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

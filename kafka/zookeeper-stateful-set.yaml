@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    service: zookeeper
+  name: zookeeper
+  namespace: datahub
+spec:
+  serviceName: zookeeper
+  replicas: 1
+  selector:
+    matchLabels:
+      service: zookeeper
+  template:
+    metadata:
+      labels:
+        network/kafka-network: "true" # Only If you are using Network Policy else comment this line while deploymment
+        service: zookeeper
+    spec:
+      securityContext:
+        fsGroup: 1000
+      enableServiceLinks: false
+      containers:
+        - name: confluentinc/cp-zookeeper:7.4.1
+          imagePullPolicy: Always
+          image: zookeeper
+          ports:
+            - containerPort: 2181
+          env:
+            - name: ZOOKEEPER_CLIENT_PORT
+              value: "2181"
+            - name: ZOOKEEPER_DATA_DIR
+              value: "/var/lib/zookeeper/data"
+            - name: ZOOKEEPER_LOG_DIR
+              value: "/var/lib/zookeeper/log"
+            - name: ZOOKEEPER_SERVER_ID
+              value: "1"
+          resources:
+            limits:
+              cpu: "500m"
+              memory: 2Gi
+            requests:
+              cpu: 200m
+              memory: 100Mi
+          volumeMounts:
+            - mountPath: /var/lib/zookeeper/data
+              name: zookeeper-data
+            - mountPath: /var/lib/zookeeper/log
+              name: zookeeper-log
+      hostname: zookeeper
+      restartPolicy: Always
+  volumeClaimTemplates:
+    - metadata:
+        name: zookeeper-data
+        namespace: datahub
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1024Mi
+    - metadata:
+        name: zookeeper-log
+        namespace: datahub
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1024Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: zookeeper
+  name: zookeeper
+  namespace: datahub
+spec:
+  ports:
+    - name: "2181"
+      port: 2181
+      targetPort: 2181
+  selector:
+    service: zookeeper            
