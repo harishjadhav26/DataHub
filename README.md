@@ -46,6 +46,9 @@ Create the namespace `datahub` before start deployment
 10. Deploy DataHub-Upgrade
 11. Deploy DataHub-GMS
 12. Deploy DataHub-Frontend-React
+13. Deploy DatHub-Ingestion
+14. Deploy DatHub-MAE-Consumer
+15. Deploy DatHub-MCE consumer
 
 Please verify every deployment up and running without any error
 
