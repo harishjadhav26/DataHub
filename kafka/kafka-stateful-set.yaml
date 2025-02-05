@@ -51,11 +51,12 @@ spec:
         name: kafka-data
         namespace: datahub
       spec:
+        storageClassName: sc-local
         accessModes:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 1Gi
+            storage: 2Gi
 ---
 apiVersion: v1
 kind: Service

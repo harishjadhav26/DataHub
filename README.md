@@ -78,3 +78,11 @@ any modification.
 ## Neo4j Browser
 To be able to debug and run Cypher queries against your Neo4j image, you can open up `Neo4j Browser` which is running at
 [http://localhost:7474/browser/](http://localhost:7474/browser/). Default username is `neo4j` and password is `datahub`.
+
+
+# Create Local Storage for Kubeadm
+
+```
+sudo mkdir -p /mnt/data/{mysql-db,kafka,zookeeper}
+sudo chmod 777 /mnt/data/{mysql-db,kafka,zookeeper}
+```
