@@ -14,7 +14,7 @@ spec:
   template:
     metadata:
       labels:
-        network/kafka-network: "true" # Only If you are using Network Policy else comment this line while deploymment
+        #network/kafka-network: "true" # Only If you are using Network Policy else comment this line while deploymment
         service: kafka
     spec:
       securityContext:

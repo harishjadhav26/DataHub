@@ -14,16 +14,16 @@ spec:
   template:
     metadata:
       labels:
-        network/kafka-network: "true" # Only If you are using Network Policy else comment this line while deploymment
+        #network/kafka-network: "true" # Only If you are using Network Policy else comment this line while deploymment
         service: zookeeper
     spec:
       securityContext:
         fsGroup: 1000
       enableServiceLinks: false
       containers:
-        - name: confluentinc/cp-zookeeper:7.4.1
+        - image: confluentinc/cp-zookeeper:7.4.1
           imagePullPolicy: Always
-          image: zookeeper
+          name: zookeeper
           ports:
             - containerPort: 2181
           env:
@@ -54,8 +54,8 @@ spec:
         name: zookeeper-data
         namespace: datahub
       spec:
-        accessModes:
-          - ReadWriteOnce
+        storageClassName: sc-local
+        accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
             storage: 1024Mi
@@ -63,8 +63,8 @@ spec:
         name: zookeeper-log
         namespace: datahub
       spec:
-        accessModes:
-          - ReadWriteOnce
+        storageClassName: sc-local
+        accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
             storage: 1024Mi
