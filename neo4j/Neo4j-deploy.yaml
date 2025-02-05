@@ -26,13 +26,13 @@ spec:
         envFrom:
           - configMapRef:
               name: neo4j-config
-        resources:
-          requests:
-            cpu: 200m
-            memory: 1Gi
-          limits:
-            cpu: 500m
-            memory: 2Gi
+        resources: {}
+          # requests:
+          #   cpu: 200m
+          #   memory: 1Gi
+          # limits:
+          #   cpu: 500m
+          #   memory: 2Gi
   volumeClaimTemplates:
     - metadata:
         name: neo4j-storage

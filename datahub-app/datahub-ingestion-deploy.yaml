@@ -22,13 +22,13 @@ spec:
               value: "datahub-gms"
             - name: KAFKA_BOOTSTRAP_SERVER
               value: "kafka-0.kafka.datahub.svc.cluster.local:29092"
-          resources:
-            limits:
-              memory: "1Gi"
-              cpu: "500m"
-            requests:
-              memory: "512Mi"
-              cpu: "250m"
+          resources: {}
+            # limits:
+            #   memory: "1Gi"
+            #   cpu: "500m"
+            # requests:
+            #   memory: "512Mi"
+            #   cpu: "250m"
 ---
 apiVersion: v1
 kind: Service

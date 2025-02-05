@@ -20,10 +20,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: kafka-setup-config
-          resources:
-            limits:
-              memory: "2Gi"
-              cpu: "1000m"
-            requests:
-              memory: "1Gi"
-              cpu: "500m"
+          resources: {}
+            # limits:
+            #   memory: "2Gi"
+            #   cpu: "1000m"
+            # requests:
+            #   memory: "1Gi"
+            #   cpu: "500m"

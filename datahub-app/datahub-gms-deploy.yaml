@@ -22,13 +22,13 @@ spec:
           envFrom:
             - configMapRef:
                 name: datahub-gms-config
-          resources:
-            limits:
-              memory: "2Gi"
-              cpu: "1"
-            requests:
-              memory: "1Gi"
-              cpu: "500m"
+          resources: {}
+            # limits:
+            #   memory: "2Gi"
+            #   cpu: "1"
+            # requests:
+            #   memory: "1Gi"
+            #   cpu: "500m"
           livenessProbe:
             exec:
               command:
