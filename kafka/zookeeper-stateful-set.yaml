@@ -16,12 +16,13 @@ spec:
       labels:
         #network/kafka-network: "true" # Only If you are using Network Policy else comment this line while deploymment
         service: zookeeper
+        app: zookeeper
     spec:
       securityContext:
         fsGroup: 1000
       enableServiceLinks: false
       containers:
-        - image: confluentinc/cp-zookeeper:7.3.2
+        - image: confluentinc/cp-zookeeper:7.8.0
           imagePullPolicy: Always
           name: zookeeper
           ports:

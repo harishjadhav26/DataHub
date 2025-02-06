@@ -13,9 +13,10 @@ spec:
       labels:
         app: schema-registry
     spec:
+      enableServiceLinks: false
       containers:
         - name: schema-registry
-          image: confluentinc/cp-schema-registry:7.3.2
+          image: confluentinc/cp-schema-registry:7.8.0
           imagePullPolicy: Always
           resources:
             requests:
@@ -28,16 +29,20 @@ spec:
             - containerPort: 8081
             - containerPort: 30092
           env:
+            - name: PORT
+              value: "8081"
+            - name: SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL
+              value: "DEBUG"
             - name: SCHEMA_REGISTRY_LISTENERS
-              value: "HTTP://0.0.0.0:8081,HTTP://0.0.0.0:30092"
+              value: "PLAINTEXT://0.0.0.0:8081,PLAINTEXT://0.0.0.0:30092"
             - name: SCHEMA_REGISTRY_HOST_NAME
               value: "schema-registry.datahub.svc.cluster.local"
             - name: SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL
               value: "PLAINTEXT"
             - name: SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL
-              value: "zookeeper-0.zookeeper.datahub.svc.cluster.local:2181"
+              value: "zookeeper.datahub.svc.cluster.local:2181"
             - name: SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
-              value: "PLAINTEXT://kafka-0.kafka.datahub.svc.cluster.local:9092"
+              value: "PLAINTEXT://kafka.datahub.svc.cluster.local:9092"
             - name: SCHEMA_REGISTRY_DEBUG
               value: 'true'
           livenessProbe:
