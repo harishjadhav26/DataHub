@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: schema-registry
-          image: confluentinc/cp-schema-registry:7.4.1
+          image: confluentinc/cp-schema-registry:7.3.2
           imagePullPolicy: Always
           resources:
             requests:
@@ -74,4 +74,4 @@ spec:
     - name: external
       protocol: TCP
       port: 30092
-      targetPort: 30092                
+      targetPort: 30092

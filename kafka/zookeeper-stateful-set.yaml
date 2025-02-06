@@ -21,7 +21,7 @@ spec:
         fsGroup: 1000
       enableServiceLinks: false
       containers:
-        - image: confluentinc/cp-zookeeper:7.4.1
+        - image: confluentinc/cp-zookeeper:7.3.2
           imagePullPolicy: Always
           name: zookeeper
           ports:
