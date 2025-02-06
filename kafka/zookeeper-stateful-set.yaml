@@ -35,6 +35,8 @@ spec:
               value: "/var/lib/zookeeper/log"
             - name: ZOOKEEPER_SERVER_ID
               value: "1"
+            - name: KAFKA_OPTS
+              value: "-Dzookeeper.4lw.commands.whitelist=*" bin/zookeeper-server-start.sh"
           resources:
             limits:
               cpu: "500m"
