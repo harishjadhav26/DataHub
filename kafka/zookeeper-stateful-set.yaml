@@ -36,7 +36,13 @@ spec:
             - name: ZOOKEEPER_SERVER_ID
               value: "1"
             - name: KAFKA_OPTS
-              value: "-Dzookeeper.4lw.commands.whitelist=*" bin/zookeeper-server-start.sh"
+              value: "-Dzookeeper.4lw.commands.whitelist=*"
+            - name: ZOOKEEPER_TICK_TIME
+              value: "2000"
+            - name: ZOOKEEPER_SYNC_LIMIT
+              value: "2"
+            - name: ZOOKEEPER_INIT_LIMIT
+              value: "5"
           resources:
             limits:
               cpu: "500m"
