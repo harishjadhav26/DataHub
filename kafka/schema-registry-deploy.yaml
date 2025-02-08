@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: schema-registry
   namespace: datahub
@@ -8,12 +8,15 @@ spec:
   selector:
     matchLabels:
       app: schema-registry
+  serviceName: schema-registry
   template:
     metadata:
       labels:
+        network/kafka-network: "true"
         app: schema-registry
     spec:
       enableServiceLinks: false
+      restartPolicy: Always
       containers:
         - name: schema-registry
           image: confluentinc/cp-schema-registry:7.8.0
@@ -24,7 +27,7 @@ spec:
               memory: 100Mi
             limits:
               cpu: "500m"
-              memory: 200Mi
+              memory: 512Mi
           ports:
             - containerPort: 8081
             - containerPort: 30092
@@ -32,9 +35,9 @@ spec:
             - name: PORT
               value: "8081"
             - name: SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL
-              value: "DEBUG"
+              value: "INFO"
             - name: SCHEMA_REGISTRY_LISTENERS
-              value: "PLAINTEXT://0.0.0.0:8081,PLAINTEXT://0.0.0.0:30092"
+              value: "http://0.0.0.0:8081,http://0.0.0.0:30092"
             - name: SCHEMA_REGISTRY_HOST_NAME
               value: "schema-registry.datahub.svc.cluster.local"
             - name: SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL
@@ -42,7 +45,7 @@ spec:
             - name: SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL
               value: "zookeeper.datahub.svc.cluster.local:2181"
             - name: SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
-              value: "PLAINTEXT://kafka.datahub.svc.cluster.local:9092"
+              value: "PLAINTEXT://kafka-0.kafka.datahub.svc.cluster.local:9092"
             - name: SCHEMA_REGISTRY_DEBUG
               value: 'true'
           livenessProbe:

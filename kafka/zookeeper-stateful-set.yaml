@@ -8,25 +8,26 @@ metadata:
 spec:
   serviceName: zookeeper
   replicas: 1
+  podManagementPolicy: Parallel
   selector:
     matchLabels:
       service: zookeeper
   template:
     metadata:
       labels:
-        #network/kafka-network: "true" # Only If you are using Network Policy else comment this line while deploymment
+        network/kafka-network: "true" # Only If you are using Network Policy else comment this line while deploymment
         service: zookeeper
-        app: zookeeper
     spec:
       securityContext:
         fsGroup: 1000
       enableServiceLinks: false
       containers:
-        - image: confluentinc/cp-zookeeper:7.8.0
+        - image: confluentinc/cp-zookeeper:7.2.1
           imagePullPolicy: Always
           name: zookeeper
           ports:
             - containerPort: 2181
+              name: client
           env:
             - name: ZOOKEEPER_CLIENT_PORT
               value: "2181"
