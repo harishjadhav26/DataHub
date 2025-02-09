@@ -1,0 +1,93 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    batch.kubernetes.io/job-tracking: ""
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation
+    helm.sh/hook-weight: "-5"
+  creationTimestamp: "2025-02-09T10:05:11Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/instance: datahub
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: datahub
+    app.kubernetes.io/version: 0.14.1
+    helm.sh/chart: datahub-0.4.27
+  name: datahub-kafka-setup-job
+  namespace: datahub
+  resourceVersion: "440308"
+  uid: 41d92ca5-43b6-4863-97d7-90c88b12bf11
+spec:
+  backoffLimit: 6
+  completionMode: NonIndexed
+  completions: 1
+  parallelism: 1
+  selector:
+    matchLabels:
+      batch.kubernetes.io/controller-uid: 41d92ca5-43b6-4863-97d7-90c88b12bf11
+  suspend: false
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        batch.kubernetes.io/controller-uid: 41d92ca5-43b6-4863-97d7-90c88b12bf11
+        batch.kubernetes.io/job-name: datahub-kafka-setup-job
+        controller-uid: 41d92ca5-43b6-4863-97d7-90c88b12bf11
+        job-name: datahub-kafka-setup-job
+    spec:
+      containers:
+      - env:
+        - name: KAFKA_ZOOKEEPER_CONNECT
+          value: prerequisites-zookeeper:2181
+        - name: KAFKA_BOOTSTRAP_SERVER
+          value: prerequisites-kafka:9092
+        - name: MAX_MESSAGE_BYTES
+          value: "5242880"
+        - name: USE_CONFLUENT_SCHEMA_REGISTRY
+          value: "false"
+        - name: METADATA_CHANGE_EVENT_NAME
+          value: MetadataChangeEvent_v4
+        - name: FAILED_METADATA_CHANGE_EVENT_NAME
+          value: FailedMetadataChangeEvent_v4
+        - name: METADATA_AUDIT_EVENT_NAME
+          value: MetadataAuditEvent_v4
+        - name: DATAHUB_USAGE_EVENT_NAME
+          value: DataHubUsageEvent_v1
+        - name: METADATA_CHANGE_PROPOSAL_TOPIC_NAME
+          value: MetadataChangeProposal_v1
+        - name: FAILED_METADATA_CHANGE_PROPOSAL_TOPIC_NAME
+          value: FailedMetadataChangeProposal_v1
+        - name: METADATA_CHANGE_LOG_VERSIONED_TOPIC_NAME
+          value: MetadataChangeLog_Versioned_v1
+        - name: METADATA_CHANGE_LOG_TIMESERIES_TOPIC_NAME
+          value: MetadataChangeLog_Timeseries_v1
+        - name: PLATFORM_EVENT_TOPIC_NAME
+          value: PlatformEvent_v1
+        - name: DATAHUB_UPGRADE_HISTORY_TOPIC_NAME
+          value: DataHubUpgradeHistory_v1
+        image: docker.io/acryldata/datahub-kafka-setup:v0.15.0.1
+        imagePullPolicy: IfNotPresent
+        name: kafka-setup-job
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 300m
+            memory: 768Mi
+        securityContext:
+          runAsUser: 1000
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 30
+status:
+  active: 1
+  ready: 0
+  startTime: "2025-02-09T10:05:11Z"
+  uncountedTerminatedPods: {}

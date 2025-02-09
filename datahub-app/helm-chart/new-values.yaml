@@ -1,0 +1,327 @@
+datahub-gms:
+  enabled: true
+  image:
+    repository: acryldata/datahub-gms
+  livenessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    failureThreshold: 8
+  readinessProbe:
+    initialDelaySeconds: 120
+    periodSeconds: 30
+    failureThreshold: 8
+datahub-frontend:
+  enabled: true
+  image:
+    repository: acryldata/datahub-frontend-react
+  ingress:
+    enabled: false
+  defaultUserCredentials: {}
+  service:
+    extraLabels: {}
+datahub-mae-consumer:
+  image:
+    repository: acryldata/datahub-mae-consumer
+datahub-mce-consumer:
+  image:
+    repository: acryldata/datahub-mce-consumer
+datahub-ingestion-cron:
+  enabled: false
+  image:
+    repository: acryldata/datahub-ingestion
+kafkaSetupJob:
+  enabled: true
+  image:
+    repository: acryldata/datahub-kafka-setup
+  extraInitContainers: []
+  podSecurityContext:
+    fsGroup: 1000
+  securityContext:
+    runAsUser: 1000
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation
+  podAnnotations: {}
+  extraSidecars: []
+postgresqlSetupJob:
+  enabled: false
+  image:
+    repository: acryldata/datahub-postgres-setup
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 300m
+      memory: 256Mi
+  extraInitContainers: []
+  podSecurityContext:
+    fsGroup: 1000
+  securityContext:
+    runAsUser: 1000
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation
+  podAnnotations: {}
+  extraSidecars: []
+datahubUpgrade:
+  enabled: true
+  image:
+    repository: acryldata/datahub-upgrade
+  batchSize: 1000
+  batchDelayMs: 100
+  noCodeDataMigration:
+    enabled: false
+    image:
+      command:
+      args: []
+    sqlDbType: "MYSQL"
+  podSecurityContext: {}
+  securityContext: {}
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "-2"
+    helm.sh/hook-delete-policy: before-hook-creation
+  podAnnotations: {}
+  extraSidecars: []
+  cleanupJob:
+    image:
+      command:
+      args: []
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 300m
+        memory: 256Mi
+    concurrencyPolicy: Allow
+    extraSidecars: []
+  restoreIndices:
+    image:
+      command:
+      args: []
+    args:
+      lePitEpochMs:
+      gePitEpochMs:
+      lastUrn:
+      lastAspect:
+      urnBasedPagination:
+      aspectNames:
+      urnLike:
+      startingOffset:
+      numThreads:
+    schedule: "0 0 * * 0"
+    concurrencyPolicy: Allow
+    extraSidecars: []
+  extraInitContainers: []
+datahubSystemUpdate:
+  image:
+    repository: acryldata/datahub-upgrade
+  podSecurityContext: {}
+  securityContext: {}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-4"
+    helm.sh/hook-delete-policy: before-hook-creation
+  nonblocking:
+    enabled: true
+    annotations:
+      helm.sh/hook: post-install,post-upgrade
+      helm.sh/hook-delete-policy: before-hook-creation
+    image:
+      args:
+  bootstrapMCPs:
+    default:
+      value_configs:
+        - "datahub.bootstrapMCPs.default.ingestion.version"
+        - "datahub.bootstrapMCPs.default.schedule.timezone"
+    datahubGC:
+      dailyCronWindow:
+        startHour: 18
+        endHour: 5
+      values_generated_configs:
+        - "datahub.systemUpdate.datahubGC.dailyCronWindow"
+      values_env: DATAHUB_GC_BOOTSTRAP_VALUES
+      revision_env: DATAHUB_GC_BOOTSTRAP_REVISION
+      values:
+        ingestion:
+          name: datahub-gc
+        cleanup_expired_tokens: "false"
+        truncate_indices: "true"
+        truncate_indices_retention_days: 30
+        dataprocess_cleanup:
+          retention_days: 30
+          delete_empty_data_jobs: "true"
+          delete_empty_data_flows: "true"
+          hard_delete_entities: "false"
+          keep_last_n: 10
+        soft_deleted_entities_cleanup:
+          retention_days: 30
+  podAnnotations: {}
+  extraSidecars: []
+  extraInitContainers: []
+global:
+  strict_mode: true
+  graph_service_impl: elasticsearch
+  datahub_analytics_enabled: true
+  datahub_standalone_consumers_enabled: false
+  imageRegistry: "docker.io"
+  elasticsearch:
+    host: "elasticsearch-0.easticsearch.datahub.svc.cluster.local"
+    port: "9200"
+    skipcheck: "false"
+    insecure: "false"
+    useSSL: "false"
+    index:
+      enableMappingsReindex: true
+      enableSettingsReindex: true
+      upgrade:
+        cloneIndices: true
+        allowDocCountMismatch: false
+    search:
+      maxTermBucketSize: 20
+      exactMatch:
+        exclusive: false
+        withPrefix: true
+        exactFactor: 2.0
+        prefixFactor: 1.6
+        caseSensitivityFactor: 0.7
+        enableStructured: true
+      graph:
+        timeoutSeconds: 50
+        batchSize: 1000
+        maxResult: 10000
+      custom:
+        enabled: false
+        config:
+          queryConfigurations:
+            - queryRegex: '[*]|'
+              simpleQuery: false
+              prefixMatchQuery: false
+              exactMatchQuery: false
+              boolQuery:
+                must_not:
+                  term:
+                    deprecated:
+                      value: true
+              functionScore:
+                functions:
+                  - filter:
+                      term:
+                        materialized:
+                          value: true
+                    weight: 0.8
+                score_mode: multiply
+                boost_mode: multiply
+            - queryRegex: >-
+                ["'].+["']|\S+_\S+
+              simpleQuery: false
+              prefixMatchQuery: true
+              exactMatchQuery: true
+              functionScore:
+                functions:
+                  - filter:
+                      term:
+                        materialized:
+                          value: true
+                    weight: 0.8
+                  - filter:
+                      term:
+                        deprecated:
+                          value: true
+                    weight: 0
+                score_mode: multiply
+                boost_mode: multiply
+            - queryRegex: .*
+              simpleQuery: true
+              prefixMatchQuery: true
+              exactMatchQuery: true
+              boolQuery:
+                must_not:
+                  term:
+                    deprecated:
+                      value: true
+              functionScore:
+                functions:
+                  - filter:
+                      term:
+                        materialized:
+                          value: true
+                    weight: 0.8
+                score_mode: multiply
+                boost_mode: multiply
+  sql:
+    datasource:
+      host: "postgres-0.postgres.datahub.svc.cluster.local:5432"
+      hostForpostgresqlClient: "prerequisites-postgresql"
+      port: "5432"
+      url: "jdbc:postgresql://postgres-0.postgres.datahub.svc.cluster.local:5432/datahub"
+      driver: "org.postgresql.Driver"
+      username: "postgres"
+      password:
+        secretRef: postgres-secret
+        secretKey: password
+  datahub:
+    version: v0.15.0.1
+    gms:
+      protocol: "http"
+      port: "8080"
+      nodePort: "30001"
+    timezone: "UTC"
+    frontend:
+      validateSignUpEmail: true
+    monitoring:
+      enablePrometheus: true
+      portName: jmx
+    mae_consumer:
+      port: "9091"
+      nodePort: "30002"
+    appVersion: "1.0"
+    systemUpdate:
+      enabled: true
+    encryptionKey:
+      secretRef: "datahub-encryption-secrets"
+      secretKey: "encryption_key_secret"
+      provisionSecret:
+        enabled: true
+        autoGenerate: true
+        annotations: {}
+    managed_ingestion:
+      enabled: true
+      defaultCliVersion: "0.15.0.1"
+    metadata_service_authentication:
+      enabled: true
+      systemClientId: "__datahub_system"
+      systemClientSecret:
+        secretRef: "datahub-auth-secrets"
+        secretKey: "system_client_secret"
+      tokenService:
+        signingKey:
+          secretRef: "datahub-auth-secrets"
+          secretKey: "token_service_signing_key"
+        salt:
+          secretRef: "datahub-auth-secrets"
+          secretKey: "token_service_salt"
+      provisionSecrets:
+        enabled: true
+        autoGenerate: true
+        annotations: {}
+    alwaysEmitChangeLog: false
+    enableGraphDiffMode: true
+    strictUrnValidation: false
+    search_and_browse:
+    metadataChangeProposal:
+      consumer:
+        batch:
+          enabled: false
+    mcp:
+      throttle:
+          enabled: false
+          enabled: false
+        versioned:
+          enabled: true
+        timeseries:
+          enabled: false

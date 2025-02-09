@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    meta.helm.sh/release-name: datahub
+    meta.helm.sh/release-namespace: datahub
+  creationTimestamp: "2025-02-09T10:46:50Z"
+  labels:
+    app.kubernetes.io/instance: datahub
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: datahub-frontend
+    app.kubernetes.io/version: v0.13.1
+    helm.sh/chart: datahub-frontend-0.2.160
+  name: datahub-datahub-frontend
+  namespace: datahub
+  resourceVersion: "446341"
+  uid: c390d0fc-d151-47a2-8eef-c844a18d3a55
+spec:
+  allocateLoadBalancerNodePorts: true
+  clusterIP: 10.101.242.177
+  clusterIPs:
+  - 10.101.242.177
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: http
+    nodePort: 30890
+    port: 9002
+    protocol: TCP
+    targetPort: http
+  - name: jmx
+    nodePort: 32246
+    port: 4318
+    protocol: TCP
+    targetPort: jmx
+  selector:
+    app.kubernetes.io/instance: datahub
+    app.kubernetes.io/name: datahub-frontend
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer:
+    ingress:
+    - ip: 192.168.1.222
