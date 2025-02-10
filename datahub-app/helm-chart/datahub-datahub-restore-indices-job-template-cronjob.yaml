@@ -1,31 +1,22 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  annotations:
-    meta.helm.sh/release-name: datahub
-    meta.helm.sh/release-namespace: datahub
-  creationTimestamp: "2025-02-09T11:06:55Z"
-  generation: 1
   labels:
-    app.kubernetes.io/instance: datahub
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: datahub
-    app.kubernetes.io/version: 0.14.1
-    helm.sh/chart: datahub-0.4.27
+    app: datahub-datahub-restore-indices-job-template
   name: datahub-datahub-restore-indices-job-template
   namespace: datahub
-  resourceVersion: "449395"
-  uid: 2e667cae-d73b-4ce4-8fe8-a21987ef9d63
 spec:
   concurrencyPolicy: Allow
   failedJobsHistoryLimit: 1
   jobTemplate:
     metadata:
-      creationTimestamp: null
+      labels:
+        app: datahub-datahub-restore-indices-job-template
     spec:
       template:
         metadata:
-          creationTimestamp: null
+          labels:
+            app: datahub-datahub-restore-indices-job-template
         spec:
           containers:
           - args:
@@ -81,45 +72,18 @@ spec:
               value: "false"
             - name: GRAPH_SERVICE_IMPL
               value: elasticsearch
-            - name: METADATA_CHANGE_EVENT_NAME
-              value: MetadataChangeEvent_v4
-            - name: FAILED_METADATA_CHANGE_EVENT_NAME
-              value: FailedMetadataChangeEvent_v4
-            - name: METADATA_AUDIT_EVENT_NAME
-              value: MetadataAuditEvent_v4
-            - name: METADATA_CHANGE_PROPOSAL_TOPIC_NAME
-              value: MetadataChangeProposal_v1
-            - name: FAILED_METADATA_CHANGE_PROPOSAL_TOPIC_NAME
-              value: FailedMetadataChangeProposal_v1
-            - name: METADATA_CHANGE_LOG_VERSIONED_TOPIC_NAME
-              value: MetadataChangeLog_Versioned_v1
-            - name: METADATA_CHANGE_LOG_TIMESERIES_TOPIC_NAME
-              value: MetadataChangeLog_Timeseries_v1
-            - name: DATAHUB_UPGRADE_HISTORY_TOPIC_NAME
-              value: DataHubUpgradeHistory_v1
-            - name: DATAHUB_SYSTEM_CLIENT_ID
-              value: __datahub_system
-            - name: DATAHUB_SYSTEM_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  key: system_client_secret
-                  name: datahub-auth-secrets
             image: docker.io/acryldata/datahub-upgrade:v0.14.1
             imagePullPolicy: IfNotPresent
             name: datahub-upgrade-job
-            resources:
-              limits:
-                cpu: 500m
-                memory: 512Mi
-              requests:
-                cpu: 300m
-                memory: 256Mi
+            #resources:
+            #  limits:
+            #    cpu: 500m
+            #    memory: 512Mi
+            #  requests:
+            #    cpu: 300m
+            #    memory: 256Mi
             securityContext: {}
-            terminationMessagePath: /dev/termination-log
-            terminationMessagePolicy: File
-          dnsPolicy: ClusterFirst
           restartPolicy: Never
-          schedulerName: default-scheduler
           securityContext: {}
           terminationGracePeriodSeconds: 30
   schedule: 0 0 * * 0

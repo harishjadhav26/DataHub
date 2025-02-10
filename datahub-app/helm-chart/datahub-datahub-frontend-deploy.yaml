@@ -1,30 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    deployment.kubernetes.io/revision: "1"
-    meta.helm.sh/release-name: datahub
-    meta.helm.sh/release-namespace: datahub
-  creationTimestamp: "2025-02-09T10:46:51Z"
-  generation: 1
   labels:
-    app.kubernetes.io/instance: datahub
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: datahub-frontend
-    app.kubernetes.io/version: v0.13.1
-    helm.sh/chart: datahub-frontend-0.2.160
-  name: datahub-datahub-frontend
+    app: datahub-frontend
+  name: datahub-frontend
   namespace: datahub
-  resourceVersion: "447854"
-  uid: d6139c0c-8fc1-4fda-97be-4fb1b2dd92ae
 spec:
-  progressDeadlineSeconds: 600
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app.kubernetes.io/instance: datahub
-      app.kubernetes.io/name: datahub-frontend
+      app: datahub-frontend
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -34,60 +20,38 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        app.kubernetes.io/instance: datahub
-        app.kubernetes.io/name: datahub-frontend
+        app: datahub-frontend
     spec:
       containers:
       - env:
-        - name: ENABLE_PROMETHEUS
-          value: "true"
         - name: DATAHUB_GMS_HOST
-          value: datahub-datahub-gms
+          value: datahub-gms.datahub.svc.cluster.local
         - name: DATAHUB_GMS_PORT
           value: "8080"
         - name: DATAHUB_SECRET
-          valueFrom:
-            secretKeyRef:
-              key: datahub.gms.secret
-              name: datahub-gms-secret
-        - name: DATAHUB_APP_VERSION
-          value: "1.0"
+          value: datahub
+          #valueFrom:
+          #  secretKeyRef:
+          #    key: datahub.gms.secret
+          #    name: datahub-gms-secret
         - name: DATAHUB_PLAY_MEM_BUFFER_SIZE
           value: 10MB
         - name: DATAHUB_ANALYTICS_ENABLED
           value: "true"
         - name: KAFKA_BOOTSTRAP_SERVER
-          value: prerequisites-kafka:9092
+          value: kafka-0.kafka.datahub.svc.cluster.local:9092
         - name: ENFORCE_VALID_EMAIL
           value: "true"
-        - name: KAFKA_PRODUCER_COMPRESSION_TYPE
-          value: none
-        - name: KAFKA_PRODUCER_MAX_REQUEST_SIZE
-          value: "5242880"
-        - name: KAFKA_CONSUMER_MAX_PARTITION_FETCH_BYTES
-          value: "5242880"
         - name: ELASTIC_CLIENT_HOST
           value: elasticsearch-0.easticsearch.datahub.svc.cluster.local
         - name: ELASTIC_CLIENT_PORT
           value: "9200"
         - name: ELASTIC_CLIENT_USE_SSL
           value: "false"
-        - name: DATAHUB_TRACKING_TOPIC
-          value: DataHubUsageEvent_v1
         - name: METADATA_SERVICE_AUTH_ENABLED
           value: "true"
-        - name: DATAHUB_SYSTEM_CLIENT_ID
-          value: __datahub_system
-        - name: DATAHUB_SYSTEM_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              key: system_client_secret
-              name: datahub-auth-secrets
-        - name: AUTH_SESSION_TTL_HOURS
-          value: "24"
         image: docker.io/acryldata/datahub-frontend-react:v0.15.0.1
         imagePullPolicy: IfNotPresent
-        lifecycle: {}
         livenessProbe:
           failureThreshold: 4
           httpGet:
@@ -116,37 +80,14 @@ spec:
           periodSeconds: 30
           successThreshold: 1
           timeoutSeconds: 1
-        resources:
-          limits:
-            memory: 1400Mi
-          requests:
-            cpu: 100m
-            memory: 512Mi
+        #resources:
+        #  limits:
+        #    memory: 1400Mi
+        #  requests:
+        #    cpu: 100m
+        #    memory: 512Mi
         securityContext: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-      dnsPolicy: ClusterFirst
       restartPolicy: Always
-      schedulerName: default-scheduler
       securityContext: {}
-      serviceAccount: datahub-datahub-frontend
-      serviceAccountName: datahub-datahub-frontend
+      #serviceAccount: datahub-datahub-frontend
       terminationGracePeriodSeconds: 150
-status:
-  conditions:
-  - lastTransitionTime: "2025-02-09T10:46:51Z"
-    lastUpdateTime: "2025-02-09T10:46:51Z"
-    message: Deployment does not have minimum availability.
-    reason: MinimumReplicasUnavailable
-    status: "False"
-    type: Available
-  - lastTransitionTime: "2025-02-09T10:56:52Z"
-    lastUpdateTime: "2025-02-09T10:56:52Z"
-    message: ReplicaSet "datahub-datahub-frontend-d6b567dd9" has timed out progressing.
-    reason: ProgressDeadlineExceeded
-    status: "False"
-    type: Progressing
-  observedGeneration: 1
-  replicas: 1
-  unavailableReplicas: 1
-  updatedReplicas: 1
