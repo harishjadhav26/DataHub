@@ -32,12 +32,26 @@ spec:
       securityContext:
         runAsUser: 999
         fsGroup: 999
+        fsGroupChangePolicy: "OnRootMismatch"
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 999:999 /var/lib/postgresql/data"]
+          securityContext:
+            runAsUser: 0  # Run as root ONLY for init
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data          
       containers:
         - name: postgres
           image: postgres:16
+          #image: docker.io/harishjadhav26/postgres:16
           securityContext:
-            allowPrivilegeEscalation: false
-          imagePullPolicy: IfNotPresent
+            allowPrivilegeEscalation: false 
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 999
+          imagePullPolicy: Always
           ports:
             - containerPort: 5432
               name: postgres
@@ -46,35 +60,35 @@ spec:
               value: datahub
             - name: POSTGRES_USER
               value: postgres
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: password
+            - name: PGDATA
+              value: "/var/lib/postgresql/data"
+            - name: POSTGRES_PASSWORD_FILE
+              value: "/secrets/password"
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
-              subPath: postgres-data
+              subPath: data
             - name: postgres-config-volume
               mountPath: /etc/postgresql/postgresql.conf
               subPath: postgresql.conf
-          readinessProbe:
-            exec:
-              command: ["pg_isready", "-d", "datahub"]
-            initialDelaySeconds: 10
-            periodSeconds: 5
-          livenessProbe:
-            exec:
-              command: ["pg_isready", "-d", "datahub"]
-            initialDelaySeconds: 10
-            periodSeconds: 10
+            - name: postgres-secret
+              mountPath: "/secrets"
+              readOnly: true
       volumes:
+        - name: postgres-storage
+          emptyDir: {}
         - name: postgres-config-volume
           configMap:
             name: postgres-config
             items:
               - key: postgresql.conf
                 path: postgresql.conf
+        - name: postgres-secret
+          secret:
+            secretName: postgres-secret
+            items:
+              - key: password
+                path: password
   volumeClaimTemplates:
     - metadata:
         name: postgres-storage

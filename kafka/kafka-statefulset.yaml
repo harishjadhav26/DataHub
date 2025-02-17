@@ -17,7 +17,7 @@ spec:
   template:
     metadata:
       labels:
-        network/kafka-network: "true"
+        #network/kafka-network: "true"
         app: kafka
     spec:
       securityContext:
@@ -84,7 +84,7 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 2Gi
+            storage: 5Gi
 ---
 apiVersion: v1
 kind: Service

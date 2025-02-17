@@ -15,7 +15,7 @@ spec:
   template:
     metadata:
       labels:
-        network/kafka-network: "true" # Only If you are using Network Policy else comment this line while deploymment
+        #network/kafka-network: "true" # Only If you are using Network Policy else comment this line while deploymment
         service: zookeeper
     spec:
       securityContext:
@@ -68,7 +68,7 @@ spec:
         accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
-            storage: 1024Mi
+            storage: 5Gi
     - metadata:
         name: zookeeper-log
         namespace: datahub
@@ -77,7 +77,7 @@ spec:
         accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
-            storage: 1024Mi
+            storage: 5Gi
 ---
 apiVersion: v1
 kind: Service
