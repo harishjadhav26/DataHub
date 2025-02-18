@@ -1,0 +1,115 @@
+---
+# Source: datahub/charts/datahub-frontend/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault-datahub-frontend
+  labels:
+    helm.sh/chart: datahub-frontend-0.2.160
+    app.kubernetes.io/name: datahub-frontend
+    app.kubernetes.io/instance: vault
+    app.kubernetes.io/version: "v0.13.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: datahub-frontend
+      app.kubernetes.io/instance: vault
+  template:
+    metadata:
+      annotations:
+      labels:
+        app.kubernetes.io/name: datahub-frontend
+        app.kubernetes.io/instance: vault
+    spec:
+      terminationGracePeriodSeconds: 150
+      serviceAccountName: vault-datahub-frontend
+      securityContext:
+        {}
+      volumes:
+      initContainers:
+      containers:
+        - name: datahub-frontend
+          securityContext:
+            {}
+          image: docker.io/acryldata/datahub-frontend-react:v0.14.1
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            {}
+          ports:
+            - name: http
+              containerPort: 9002
+              protocol: TCP
+            - name: jmx
+              containerPort: 4318
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /admin
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 4
+          readinessProbe:
+            httpGet:
+              path: /admin
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 4
+          env:
+            - name: ENABLE_PROMETHEUS
+              value: "true"
+            - name: DATAHUB_GMS_HOST
+              value: vault-datahub-gms
+            - name: DATAHUB_GMS_PORT
+              value: "8080"
+            - name: DATAHUB_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: vault-gms-secret
+                  key: datahub.gms.secret
+            - name: DATAHUB_APP_VERSION
+              value: "1.0"
+            - name: DATAHUB_PLAY_MEM_BUFFER_SIZE
+              value: "10MB"
+            - name: DATAHUB_ANALYTICS_ENABLED
+              value: "true"
+            - name: KAFKA_BOOTSTRAP_SERVER
+              value: "prerequisites-kafka:9092"
+            - name: ENFORCE_VALID_EMAIL
+              value: "true"
+            - name: KAFKA_PRODUCER_COMPRESSION_TYPE
+              value: "none"
+            - name: KAFKA_PRODUCER_MAX_REQUEST_SIZE
+              value: "5242880"
+            - name: KAFKA_CONSUMER_MAX_PARTITION_FETCH_BYTES
+              value: "5242880"
+            - name: ELASTIC_CLIENT_HOST
+              value: "elasticsearch-master"
+            - name: ELASTIC_CLIENT_PORT
+              value: "9200"
+            - name: ELASTIC_CLIENT_USE_SSL
+              value: "false"
+            - name: DATAHUB_TRACKING_TOPIC
+              value: DataHubUsageEvent_v1
+            - name: METADATA_SERVICE_AUTH_ENABLED
+              value: "true"
+            - name: DATAHUB_SYSTEM_CLIENT_ID
+              value: __datahub_system
+            - name: DATAHUB_SYSTEM_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: datahub-auth-secrets
+                  key: system_client_secret
+            - name: AUTH_SESSION_TTL_HOURS
+              value: "24"
+          volumeMounts:
+          resources:
+            limits:
+              memory: 1400Mi
+            requests:
+              cpu: 100m
+              memory: 512Mi

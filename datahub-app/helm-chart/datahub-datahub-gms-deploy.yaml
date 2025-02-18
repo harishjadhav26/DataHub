@@ -12,15 +12,14 @@ spec:
     matchLabels:
       app: datahub-gms
   strategy:
-    #rollingUpdate:
-    #  maxSurge: 25%
-    #  maxUnavailable: 25%
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
     type: RollingUpdate
   template:
     metadata:
-      creationTimestamp: null
       labels:
-        network/kafka-network: "true"
+        #network/kafka-network: "true"
         app: datahub-gms
     spec:
       containers:
@@ -53,7 +52,7 @@ spec:
         - name: SCHEMA_REGISTRY_TYPE
           value: INTERNAL
         - name: ELASTICSEARCH_HOST
-          value: elasticsearch-0.easticsearch.datahub.svc.cluster.local
+          value: elasticsearch.datahub.svc.cluster.local
         - name: ELASTICSEARCH_PORT
           value: "9200"
         - name: SKIP_ELASTICSEARCH_CHECK

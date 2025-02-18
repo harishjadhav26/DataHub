@@ -1,0 +1,26 @@
+---
+# Source: datahub/charts/datahub-gms/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-datahub-gms
+  labels:
+    helm.sh/chart: datahub-gms-0.2.173
+    app.kubernetes.io/name: datahub-gms
+    app.kubernetes.io/instance: vault
+    app.kubernetes.io/version: "v0.14.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+    - name: jmx
+      port: 4318
+      targetPort: jmx
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: datahub-gms
+    app.kubernetes.io/instance: vault

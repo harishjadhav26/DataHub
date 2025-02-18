@@ -1,0 +1,26 @@
+---
+# Source: datahub/charts/datahub-frontend/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-datahub-frontend
+  labels:
+    helm.sh/chart: datahub-frontend-0.2.160
+    app.kubernetes.io/name: datahub-frontend
+    app.kubernetes.io/instance: vault
+    app.kubernetes.io/version: "v0.13.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 9002
+      targetPort: http
+      protocol: TCP
+      name: http
+    - name: jmx
+      port: 4318
+      targetPort: jmx
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: datahub-frontend
+    app.kubernetes.io/instance: vault

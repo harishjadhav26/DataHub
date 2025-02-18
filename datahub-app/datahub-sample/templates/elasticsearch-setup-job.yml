@@ -1,0 +1,50 @@
+---
+# Source: datahub/templates/elasticsearch-setup-job.yml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-elasticsearch-setup-job
+  labels:
+    helm.sh/chart: datahub-0.4.27
+    app.kubernetes.io/name: datahub
+    app.kubernetes.io/instance: vault
+    app.kubernetes.io/version: "0.14.1"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation
+    helm.sh/hook-weight: "-5"
+spec:
+  template:
+    spec:
+      volumes:
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: elasticsearch-setup-job
+          image: docker.io/acryldata/datahub-elasticsearch-setup:v0.14.1
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ELASTICSEARCH_HOST
+              value: "elasticsearch-master"
+            - name: ELASTICSEARCH_PORT
+              value: "9200"
+            - name: SKIP_ELASTICSEARCH_CHECK
+              value: "false"
+            - name: ELASTICSEARCH_INSECURE
+              value: "false"
+            - name: ELASTICSEARCH_USE_SSL
+              value: "false"
+            - name: DATAHUB_ANALYTICS_ENABLED
+              value: "true"
+          securityContext:
+            runAsUser: 1000
+          volumeMounts:
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 300m
+              memory: 256Mi
