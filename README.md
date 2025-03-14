@@ -4,14 +4,14 @@
 
 Please ensure the PV and PVC
 
-Datahub consists of 4 main components:
+Datahub contains 4 main components:
 
 ```
 acryldata/datahub-ingestion
 acryldata/datahub-gms
 acryldata/datahub-frontend-react
-acryldata/datahub-mae-consumer
-acryldata/datahub-mce-consumer
+acryldata/datahub-mae-consumer (optional)
+acryldata/datahub-mce-consumer (optional)
 ```
 
 Datahub setups for external dependencies:
@@ -92,4 +92,134 @@ sudo rm -rf /mnt/data/{mysql-db,kafka,zookeeper,elasticsearch}
 sudo mkdir -p /mnt/data/{mysql-db,kafka,zookeeper,elasticsearch}
 sudo chmod 777 /mnt/data/{mysql-db,kafka,zookeeper,elasticsearch}
 sudo chown -R harish. /mnt/data/{mysql-db,kafka,zookeeper,elasticsearch}
+```
+
+***Deployment Phases***
+
+1. Deploy the Zookeeper
+```
+kubectl apply -f kafka-zookeeper-schema-registry/zookeeper.yaml
+
+kubectl get pod
+
+kubectl logs -f -l service=zookeeper
+```
+
+2. Deploy the kafka 
+```
+kubectl apply -f kafka-zookeeper-schema-registry/kafka.yaml
+
+kubectl get pod
+
+kubectl logs -f -l app=kafka
+```
+
+3. Deploy the schema-registry
+```
+kubectl apply -f kafka-zookeeper-schema-registry/schema-registry.yaml
+
+kubectl get pod
+
+kubectl logs -f -l app=schema-registry
+```
+
+4. Deploy the Elasticsearch
+```
+kubectl apply -f elasticsearch/elasticsearch.yaml
+
+kubectl get pod
+
+kubectl logs -f -l app=elasticsearch
+```
+
+5. Add job for datahub kafka setup
+```
+kubectl apply -f datahub-app/datahub-kafka-setup.yaml
+
+kubectl get pod
+
+kubectl logs -f job/datahub-kafka-setup-job
+```
+6. Add job for datahub elasticsearch setup
+```
+kubectl apply -f datahub-app/datahub-elasticsearch-setup.yaml
+
+kubectl get pod
+
+kubectl logs -f job/datahub-elasticsearch-setup-job
+```
+
+7. Add job for datahub mysql setup
+```
+kubectl apply -f datahub-app/datahub-mysql-setup.yaml
+
+kubectl get pod
+
+kubectl logs -f job/datahub-mysql-setup-job
+```
+
+8. Add job for datahub-upgrade
+```
+kubectl apply -f datahub-app/datahub-upgrade.yaml
+
+kubectl get pod
+
+kubectl logs -f job/datahub-upgrade
+```
+
+9. Deploy the Datahub GMS
+```
+kubectl apply -f datahub-app/datahub-gms.yaml
+
+kubectl get pod
+
+kubectl logs -f -l app=datahub-gms
+```
+
+10. Deploy the Datahub Frontend
+```
+kubectl apply -f datahub-app/datahub-frontend-react.yaml
+
+kubectl get pod
+
+kubectl logs -f -l app=datahub-frontend-react
+```
+
+Finalyy try to access the URL 
+
+kubectl port-forward svc/datahub-frontend 9002:9002
+
+Open URL in browser `URL: http://localhost:9002` Default username `datahub` and password `datahub`
+
+
+If DataHub is still showing the `"Before we begin"` onboarding screen, follow these debugging steps to resolve the issue:
+
+```
+Run this GraphQL mutation in Postman or GraphiQL:
+
+kubectl port-forward svc/datahub-frontend 9002:9002
+
+URL: http://localhost:9002/api/graphql
+
+Method: POST
+
+Body:
+
+{
+  "query": "mutation { updateGlobalSettings(input: {showOnboarding: false}) }"
+}
+
+
+# Refresh your browser and see if the onboarding screen disappears.
+#  Manually Modify DataHub MySQL DB (Alternative)
+
+If you're using MySQL as the metadata store, you can manually change the onboarding setting.
+
+USE datahub;
+
+UPDATE metadata_aspect_v2 SET aspect = JSON_SET(aspect, '$.showOnboarding', false) WHERE urn = 'urn:li:dataset:(urn:li:dataPlatform:datahub,global_settings,PROD)';
+
+kubectl rollout restart deployment datahub-gms
+kubectl rollout restart deployment datahub-frontend-react
+
 ```
