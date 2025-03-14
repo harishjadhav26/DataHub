@@ -35,22 +35,22 @@ The main components are powered by 4 external dependencies:
 
 Deployment Sequesnces:
 
-Create the namespace `datahub` before start deployment
+We are using the default namespace `default` for deployment, you can also use different namespace like `datahub`.
 
 1. Deploy MySQL/MariaDB/PostGreSQL any one from these
 2. Deploy Elasticsearch
 3. Deploy Zookeeper
 4. Deploy Kafka
 5. Deploy Schema-Registry
-6. Deploy Neo4J
+6. Deploy Neo4J (OPTIONAL NOT REQUIRED)
 7. Deploy Kafka-Setup
 9. Deploy Elasticsearch-Setup
 10. Deploy DataHub-Upgrade
 11. Deploy DataHub-GMS
 12. Deploy DataHub-Frontend-React
 13. Deploy DatHub-Ingestion
-14. Deploy DatHub-MAE-Consumer
-15. Deploy DatHub-MCE consumer
+14. Deploy DatHub-MAE-Consumer (OPTIONAL)
+15. Deploy DatHub-MCE consumer (OPTIONAL)
 
 Please verify every deployment up and running without any error
 
@@ -66,18 +66,21 @@ Using Kafka with Kubernetes has multiple benefits, especially if the organizatio
 ```
 
 ```
-Mysql Default Passwod: D4BB3A9AFC45D210
-Base64 Converted Password: RDRCQjNBOUFGQzQ1RDIxMAo=
-```
+You can update the following details in deployment files
 
+Mysql Default Host: 192.168.1.111
+Mysql Default User: root
+Mysql Default Passwod: admin
+```
 MariaDB POC with Galera:
 https://github.com/mariadb-operator/mariadb-poc/tree/main/galera/kubernetes
 
-DataHub uses Neo4j as graph db in the backend to serve graph queries.
+
+`OPTIONAL` DataHub uses Neo4j as graph db in the backend to serve graph queries.
 [Official Neo4j image](https://hub.docker.com/_/neo4j) found in Docker Hub is used without 
 any modification.
 
-## Neo4j Browser
+## Neo4j Browser(OPTIONAL)
 To be able to debug and run Cypher queries against your Neo4j image, you can open up `Neo4j Browser` which is running at
 [http://localhost:7474/browser/](http://localhost:7474/browser/). Default username is `neo4j` and password is `datahub`.
 
@@ -85,6 +88,8 @@ To be able to debug and run Cypher queries against your Neo4j image, you can ope
 # Create Local Storage for Kubeadm
 
 ```
-sudo mkdir -p /mnt/data/{mysql-db,kafka,zookeeper}
-sudo chmod 777 /mnt/data/{mysql-db,kafka,zookeeper}
+sudo rm -rf /mnt/data/{mysql-db,kafka,zookeeper,elasticsearch}
+sudo mkdir -p /mnt/data/{mysql-db,kafka,zookeeper,elasticsearch}
+sudo chmod 777 /mnt/data/{mysql-db,kafka,zookeeper,elasticsearch}
+sudo chown -R harish. /mnt/data/{mysql-db,kafka,zookeeper,elasticsearch}
 ```

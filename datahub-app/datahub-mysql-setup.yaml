@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: datahub-mysql-setup-job
+spec:
+  suspend: false
+  template:
+    metadata:
+      labels:
+        app: datahub-mysql-setup-job
+        job-name: datahub-mysql-setup-job
+    spec:
+      containers:
+      - env:
+        - name: DATAHUB_DB_NAME
+          value: datahub        
+        - name: MYSQL_USERNAME
+          value: root
+        - name: MYSQL_PASSWORD
+          value: admin
+        - name: MYSQL_HOST
+          value: 192.168.1.111
+        - name: MYSQL_PORT
+          value: "3306"
+        image: docker.io/acryldata/datahub-mysql-setup:v1.0.0rc4
+        imagePullPolicy: IfNotPresent
+        name: datahub-mysql-setup-job
+        securityContext:
+          runAsUser: 1000
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 30

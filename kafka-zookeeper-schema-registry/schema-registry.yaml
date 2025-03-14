@@ -1,0 +1,59 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: schema-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: schema-registry
+  template:
+    metadata:
+      labels:
+        app: schema-registry
+    spec:
+      enableServiceLinks: false
+      restartPolicy: Always
+      containers:
+        - name: schema-registry
+          image: confluentinc/cp-schema-registry:7.4.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+            - containerPort: 30092
+          env:
+            - name: PORT
+              value: "8081"
+            - name: SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL
+              value: "INFO"
+            - name: SCHEMA_REGISTRY_LISTENERS
+              value: "http://0.0.0.0:8081,http://0.0.0.0:30092"
+            - name: SCHEMA_REGISTRY_HOST_NAME
+              value: "schema-registry.default.svc.cluster.local"
+            - name: SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL
+              value: "PLAINTEXT"
+            - name: SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL
+              value: "zookeeper.default.svc.cluster.local:2181"
+            - name: SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
+              value: "PLAINTEXT://kafka-0.kafka.default.svc.cluster.local:9092"
+            - name: SCHEMA_REGISTRY_DEBUG
+              value: 'true'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: schema-registry
+spec:
+  selector:
+    app: schema-registry
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8081
+      targetPort: 8081
+    - name: external
+      protocol: TCP
+      port: 30092
+      targetPort: 30092

@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: datahub-postgres-setup-job
+spec:
+  suspend: false
+  template:
+    metadata:
+      labels:
+        app: datahub-postgres-setup-job
+        job-name: datahub-postgres-setup-job
+    spec:
+      containers:
+      - env:
+        - name: DATAHUB_DB_NAME
+          value: datahub        
+        - name: POSTGRES_USERNAME
+          value: root
+        - name: POSTGRES_PASSWORD
+          value: admin
+        - name: POSTGRES_HOST
+          value: 192.168.1.111
+        - name: POSTGRES_PORT
+          value: "5432"
+        image: docker.io/acryldata/datahub-postgres-setup:v1.0.0rc4
+        imagePullPolicy: IfNotPresent
+        name: datahub-postgres-setup-job
+        securityContext:
+          runAsUser: 1000
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 30

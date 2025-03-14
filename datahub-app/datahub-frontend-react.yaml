@@ -1,0 +1,91 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: datahub-frontend-config
+data:
+  DATAHUB_APP_CONFIG_YAML: |
+    authentication:
+      enabled: true
+    policies:
+      showOnboarding: false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: datahub-frontend-react  
+  name: datahub-frontend-react
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: datahub-frontend-react
+  template:
+    metadata:
+      labels:
+        app: datahub-frontend-react
+    spec:
+      containers:
+      - name: datahub-frontend-react
+        image: docker.io/acryldata/datahub-frontend-react:v1.0.0rc4
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9002
+          name: http
+          protocol: TCP
+        - containerPort: 4318
+          name: jmx
+          protocol: TCP          
+        env:
+        - name: DATAHUB_APP_CONFIG_YAML
+          valueFrom:
+            configMapKeyRef:
+              name: datahub-frontend-config
+              key: DATAHUB_APP_CONFIG_YAML          
+        - name: DATAHUB_APP_VERSION
+          value: "1.0"
+        - name: DATAHUB_GMS_HOST
+          value: datahub-gms.default.svc.cluster.local
+        - name: DATAHUB_GMS_PORT
+          value: "8080"
+        - name: DATAHUB_PLAY_MEM_BUFFER_SIZE
+          value: 10MB
+        - name: DATAHUB_SECRET
+          value: YouKnowNothing
+        - name: DATAHUB_TRACKING_TOPIC
+          value: DataHubUsageEvent_v1
+        - name: ELASTIC_CLIENT_HOST
+          value: elasticsearch.default.svc.cluster.local
+        - name: ELASTIC_CLIENT_PORT
+          value: "9200"
+        - name: JAVA_OPTS
+          value: -Xms128m -Xmx512m -Dhttp.port=9002 -Dconfig.file=datahub-frontend/conf/application.conf -Djava.security.auth.login.config=datahub-frontend/conf/jaas.conf -Dlogback.configurationFile=datahub-frontend/conf/logback.xml -Dlogback.debug=false -Dpidfile.path=/dev/null
+        - name: KAFKA_BOOTSTRAP_SERVER
+          value: kafka-0.kafka.default.svc.cluster.local:9092
+      securityContext:
+        fsGroup: 1000
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: datahub-frontend-react
+  name: datahub-frontend-react
+spec:
+  ports:
+  - name: http
+    nodePort: 30890
+    port: 9002
+    protocol: TCP
+    targetPort: http
+  - name: jmx
+    nodePort: 32246
+    port: 4318
+    protocol: TCP
+    targetPort: jmx
+  selector:
+    app: datahub-frontend-react 
+  sessionAffinity: None
+  type: LoadBalancer

@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: datahub-elasticsearch-setup-job
+spec:
+  suspend: false
+  template:
+    metadata:
+      labels:
+        app: datahub-elasticsearch-setup-job
+        job-name: datahub-elasticsearch-setup-job
+    spec:
+      containers:
+      - env:
+        - name: ELASTICSEARCH_HOST
+          value: elasticsearch.default.svc.cluster.local
+        - name: ELASTICSEARCH_PORT
+          value: "9200"
+        - name: SKIP_ELASTICSEARCH_CHECK
+          value: "false"
+        - name: ELASTICSEARCH_INSECURE
+          value: "false"
+        - name: ELASTICSEARCH_USE_SSL
+          value: "false"
+        - name: USE_AWS_ELASTICSEARCH
+          value: "false"            
+        image: docker.io/acryldata/datahub-elasticsearch-setup:v1.0.0rc4
+        imagePullPolicy: IfNotPresent
+        name: datahub-elasticsearch-setup-job
+        securityContext:
+          runAsUser: 1000
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 30

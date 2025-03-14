@@ -1,0 +1,90 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    service: zookeeper
+  name: zookeeper
+spec:
+  serviceName: zookeeper
+  replicas: 1
+  selector:
+    matchLabels:
+      service: zookeeper
+  template:
+    metadata:
+      labels:
+        service: zookeeper
+    spec:
+      securityContext:
+        fsGroup: 1000
+      enableServiceLinks: false
+      containers:
+        - image: confluentinc/cp-zookeeper:7.4.0
+          imagePullPolicy: Always
+          name: zookeeper
+          ports:
+            - containerPort: 2181
+              name: client
+          env:
+            - name: ZOOKEEPER_CLIENT_PORT
+              value: "2181"
+            - name: ZOOKEEPER_DATA_DIR
+              value: "/var/lib/zookeeper/data"
+            - name: ZOOKEEPER_LOG_DIR
+              value: "/var/lib/zookeeper/log"
+            - name: ZOOKEEPER_SERVER_ID
+              value: "1"
+            - name: KAFKA_OPTS
+              value: "-Dzookeeper.4lw.commands.whitelist=*"
+            - name: ZOOKEEPER_TICK_TIME
+              value: "2000"
+            - name: ZOOKEEPER_SYNC_LIMIT
+              value: "2"
+            - name: ZOOKEEPER_INIT_LIMIT
+              value: "5"
+          resources:
+            limits:
+              cpu: "500m"
+              memory: 200Mi
+            requests:
+              cpu: 200m
+              memory: 100Mi
+          volumeMounts:
+            - mountPath: /var/lib/zookeeper/data
+              name: zookeeper-data
+            - mountPath: /var/lib/zookeeper/log
+              name: zookeeper-log
+      hostname: zookeeper
+      restartPolicy: Always
+  volumeClaimTemplates:
+    - metadata:
+        name: zookeeper-data
+      spec:
+        storageClassName: sc-local
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+    - metadata:
+        name: zookeeper-log
+      spec:
+        storageClassName: sc-local
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: zookeeper
+  name: zookeeper
+spec:
+  ports:
+    - name: "2181"
+      port: 2181
+      targetPort: 2181
+  selector:
+    service: zookeeper

@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: datahub-kafka-setup-job
+spec:
+  suspend: false
+  template:
+    metadata:
+      labels:
+        app: datahub-kafka-setup-job
+        job-name: datahub-kafka-setup-job
+    spec:
+      containers:
+      - env:
+        - name: KAFKA_ZOOKEEPER_CONNECT
+          value: zookeeper.default.svc.cluster.local:2181
+        - name: KAFKA_BOOTSTRAP_SERVER
+          value: kafka-0.kafka.default.svc.cluster.local:9092
+        - name: MAX_MESSAGE_BYTES
+          value: "5242880"
+        - name: USE_CONFLUENT_SCHEMA_REGISTRY
+          value: "false"
+        image: docker.io/acryldata/datahub-kafka-setup:v1.0.0rc4
+        imagePullPolicy: IfNotPresent
+        name: datahub-kafka-setup-job
+        securityContext:
+          runAsUser: 1000
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 30

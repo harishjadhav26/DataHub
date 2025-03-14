@@ -1,0 +1,121 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: datahub-gms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: datahub-gms
+  template:
+    metadata:
+      labels:
+        app: datahub-gms
+    spec:
+      containers:
+      - name: datahub-gms
+        image: docker.io/acryldata/datahub-gms:v1.0.0rc4        
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATAHUB_GMS_PORT
+          value: "8080"
+        - name: DATAHUB_SERVER_TYPE
+          value: quickstart
+        - name: DATAHUB_TELEMETRY_ENABLED
+          value: "true"
+        - name: DATAHUB_UPGRADE_HISTORY_KAFKA_CONSUMER_GROUP_ID
+          value: generic-duhe-consumer-job-client-gms
+        # For MySQL DataSource
+        - name: EBEAN_DATASOURCE_DRIVER
+          value: com.mysql.jdbc.Driver
+        - name: EBEAN_DATASOURCE_HOST
+          value: 192.168.1.111:3306
+        - name: EBEAN_DATASOURCE_URL
+          value: jdbc:mysql://192.168.1.111:3306/datahub?verifyServerCertificate=false&useSSL=true&useUnicode=yes&characterEncoding=UTF-8&enabledTLSProtocols=TLSv1.2            
+        - name: EBEAN_DATASOURCE_PASSWORD
+          value: admin
+        - name: EBEAN_DATASOURCE_USERNAME
+          value: root
+        # For PostgreSQL DataSource            
+#        - name: EBEAN_DATASOURCE_HOST
+#          value: 192.168.1.111:5432
+#        - name: EBEAN_DATASOURCE_URL
+#          value: jdbc:postgresql://192.168.1.111:5432/datahub
+#        - name: EBEAN_DATASOURCE_DRIVER
+#          value: org.postgresql.Driver
+#        - name: EBEAN_DATASOURCE_PASSWORD
+#          value: StrongPostgresPass
+#        - name: EBEAN_DATASOURCE_USERNAME
+#          value: postgres
+        - name: ELASTICSEARCH_HOST
+          value: elasticsearch.default.svc.cluster.local
+        - name: ELASTICSEARCH_INDEX_BUILDER_MAPPINGS_REINDEX
+          value: "true"
+        - name: ELASTICSEARCH_INDEX_BUILDER_SETTINGS_REINDEX
+          value: "true"
+        - name: ELASTICSEARCH_PORT
+          value: "9200"
+        - name: ENTITY_REGISTRY_CONFIG_PATH
+          value: /datahub/datahub-gms/resources/entity-registry.yml
+        - name: ENTITY_SERVICE_ENABLE_RETENTION
+          value: "true"
+        - name: ES_BULK_REFRESH_POLICY
+          value: WAIT_UNTIL
+        - name: GRAPH_SERVICE_DIFF_MODE_ENABLED
+          value: "true"
+        - name: GRAPH_SERVICE_IMPL
+          value: elasticsearch
+        - name: JAVA_OPTS
+          value: -Xms128m -Xmx512m
+        - name: KAFKA_BOOTSTRAP_SERVER
+          value: kafka-0.kafka.default.svc.cluster.local:9092
+        - name: KAFKA_CONSUMER_STOP_ON_DESERIALIZATION_ERROR
+          value: "true"
+        - name: KAFKA_SCHEMAREGISTRY_URL
+          value: http://schema-registry.default.svc.cluster.local:8081
+        - name: MAE_CONSUMER_ENABLED
+          value: "true"
+        - name: MCE_CONSUMER_ENABLED
+          value: "true"
+        - name: METADATA_SERVICE_AUTH_ENABLED
+          value: "false"
+#        - name: NEO4J_HOST
+#          value: http://neo4j:7474
+#        - name: NEO4J_PASSWORD
+#          value: datahub
+#        - name: NEO4J_URI
+#          value: bolt://neo4j
+#        - name: NEO4J_USERNAME
+#          value: neo4j
+        - name: PE_CONSUMER_ENABLED
+          value: "true"
+        - name: THEME_V2_DEFAULT
+          value: "true"
+        - name: UI_INGESTION_ENABLED
+          value: "true"
+      securityContext:
+        fsGroup: 1000
+      restartPolicy: Always          
+#        volumeMounts:
+#        - mountPath: /etc/datahub/plugins
+#          name: plugins
+#      volumes:
+#      - name: plugins
+#        hostPath:
+#          path: /home/gau/.datahub/plugins
+#          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: datahub-gms
+spec:
+  selector:
+    app: datahub-gms
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080

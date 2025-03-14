@@ -1,0 +1,73 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: datahub-upgrade
+spec:
+  suspend: false  
+  template:
+    metadata:
+      labels:
+        app: datahub-upgrade
+        job-name: datahub-upgrade
+    spec:
+      containers:
+      - name: datahub-upgrade
+        image: docker.io/acryldata/datahub-upgrade:v1.0.0rc4
+        args: 
+        - "-u"
+        - "SystemUpdate"
+        env:
+        - name: BACKFILL_BROWSE_PATHS_V2
+          value: "true"
+        - name: DATAHUB_GMS_HOST
+          value: datahub-gms.default.svc.cluster.local
+        - name: DATAHUB_GMS_PORT
+          value: "8080"
+        # For MySQL DataSource            
+        - name: EBEAN_DATASOURCE_DRIVER
+          value: com.mysql.jdbc.Driver
+        - name: EBEAN_DATASOURCE_HOST
+          value: 192.168.1.111:3306
+        - name: EBEAN_DATASOURCE_PASSWORD
+          value: admin
+        - name: EBEAN_DATASOURCE_URL
+          value: jdbc:mysql://192.168.1.111:3306/datahub?verifyServerCertificate=false&useSSL=true&useUnicode=yes&characterEncoding=UTF-8
+        - name: EBEAN_DATASOURCE_USERNAME
+          value: root
+        # For PostgreSQL DataSource            
+#        - name: EBEAN_DATASOURCE_HOST
+#          value: 192.168.1.111:5432
+#        - name: EBEAN_DATASOURCE_URL
+#          value: jdbc:postgresql://192.168.1.111:5432/datahub
+#        - name: EBEAN_DATASOURCE_DRIVER
+#          value: org.postgresql.Driver
+#        - name: EBEAN_DATASOURCE_PASSWORD
+#          value: StrongPostgresPass
+#        - name: EBEAN_DATASOURCE_USERNAME
+#          value: postgres
+        - name: ELASTICSEARCH_BUILD_INDICES_CLONE_INDICES
+          value: "false"
+        - name: ELASTICSEARCH_HOST
+          value: elasticsearch.default.svc.cluster.local
+        - name: ELASTICSEARCH_INDEX_BUILDER_MAPPINGS_REINDEX
+          value: "true"
+        - name: ELASTICSEARCH_INDEX_BUILDER_SETTINGS_REINDEX
+          value: "true"
+        - name: ELASTICSEARCH_PORT
+          value: "9200"
+        - name: ENTITY_REGISTRY_CONFIG_PATH
+          value: /datahub/datahub-gms/resources/entity-registry.yml
+        - name: GRAPH_SERVICE_IMPL
+          value: elasticsearch
+        - name: KAFKA_BOOTSTRAP_SERVER
+          value: kafka-0.kafka.default.svc.cluster.local:9092
+        - name: KAFKA_SCHEMAREGISTRY_URL
+          value: http://schema-registry.default.svc.cluster.local:8081
+        - name: REPROCESS_DEFAULT_BROWSE_PATHS_V2
+          value: "false"
+        securityContext:
+          runAsUser: 1000
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 30
